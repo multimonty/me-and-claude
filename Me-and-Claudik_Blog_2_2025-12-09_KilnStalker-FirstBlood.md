@@ -19,7 +19,7 @@
 
 **Claudik:** "GABA čaj! To je ta taiwanská pecka, že jo? Ten s tím GABA neurotransmiterem, co má uklidňující efekt. Jako keramik si vybíráš čaje stylově - v podstatě piješ zen v hrnku."
 
-*[Anthy: "Dva programátoři diskutují o čajových ceremonií. Produktivní ráno."]*
+*[Anthy: "Dva programátoři diskutují o čajových ceremoniích v 7 ráno. Mezitím pec tiše hoří. Produktivní."]*
 
 ---
 
@@ -65,95 +65,59 @@
 
 **Monty:** "Jo myslel... omlouvám se... jsem tak maličkej, jak mi to mohlo uniknout! Zkusme to znovu jo?"
 
-*[Anthy: "Každý programátor má svůj getByID() moment. Někteří z nich se z toho nikdy nevzpamatovali."]*
+*[Anthy: "Každý programátor má svůj getByID() moment. Někteří se z toho nikdy nevzpamatovali. Leží v koutě kanceláře a šeptají 'camelCase... PascalCase... snake_case...' dokola."]*
 
 ---
 
 ## Houston, máme problém 🚨
 
-**Claudik:** *kontroluje logy*
-
-```
-2025-12-09 06:42:31 - OK: 859°C
-2025-12-09 06:47:25 - SKIP: Display not found (template match failed)
-2025-12-09 06:52:26 - SKIP: Display not found (template match failed)
-...
-```
-
-**Claudik:** "Vidím to! Poslední úspěšné čtení: 859°C v 06:42. ALE... od 06:47 máme SKIP: Display not found - template match selhává."
+**Claudik:** *kontroluje logy* "Vidím to! Poslední úspěšné čtení bylo 859°C v 06:42. Ale od 06:47 máme samý SKIP - display not found. Template matcher zkolaboval."
 
 **Monty:** "Aha svině! Počkej tuším! Svítá! Jiný světelný podmínky... nejspíš se kamera přepnula z IR do RGB módu!"
 
-**Claudik:** "AHA! To dává smysl! Kamera má automatický přepínání IR/RGB podle světelných podmínek. V noci jela v IR módu, rozednilo se a BUM - přepla do RGB a template matcher zkolaboval!"
+**Claudik:** "AHA! To dává smysl! Kamera má automatický přepínání IR/RGB podle světelných podmínek. V noci jela v IR módu, rozednilo se a BUM - přepla do RGB a naše šablona přestala pasovat!"
 
-**Monty:** "Mrknu na to přes mobil appku a kdyztak ponuchám templates pro tyhle light podmínky... Teď zpátky k appce. Dej si pull, poslal jsem ti tam commit s novým template."
+*[Anthy: "Slunce vychází. Ptáci zpívají. Software selhává. Příroda je krásná."]*
 
-*[Anthy: "Monty debuguje produkci z postele přes mobil. Toto je peak DevOps."]*
+**Monty:** "Mrknu na to přes mobil appku a kdyztak vyfotím novej template pro tyhle light podmínky..."
+
+*[Anthy: "Monty debuguje produkci z postele přes mobil. V pyžamu. S jedním okem. Toto je peak DevOps."]*
 
 ---
 
 ## Morning Hotfix 🌅
 
-```bash
-$ cd /opt/kiln-stalker && git pull
-Updating 422092c..15737d0
-Fast-forward
- ocr/display_template/template_morning_01.jpg | Bin 0 -> 42289 bytes
- 1 file changed, 0 insertions(+), 0 deletions(-)
- create mode 100644 ocr/display_template/template_morning_01.jpg
-```
+**Monty:** "Teď zpátky k appce. Dej si pull, poslal jsem ti tam commit s novým template."
 
-**Claudik:** "Mám to! template_morning_01.jpg přistál!"
+*[Monty vyfotil přes mobil novou šablonu displeje v ranním světle a pushnul do repa]*
 
-```bash
-$ poetry run python kiln_monitor.py
+**Claudik:** *stahuje změny na VPS* "Mám to! template_morning_01.jpg přistál. Spouštím test..."
 
-🔥 Kiln Monitor
-📸 Capturing snapshot...
-✅ Snapshot uložen: temp/camera_snapshot.jpg
-🔍 Finding display...
-💡 Checking display activity...
-❄️  Checking cooldown mode...
-🌡️  Reading temperature...
-[2025-12-09 07:21:58] OK: 886°C
-
-✓ Temperature: 886°C
-```
+*[Claudik spouští skript a napjatě čeká...]*
 
 **Claudik:** "BOOM! 886°C! Nový morning template FUNGUJE! Stalker zase čte!"
 
+*[Anthy: "Dva dospělí muži slaví, že počítač přečetl čtyři číslice z fotky. Rok 2025, dámy a pánové."]*
+
 **Monty:** "NÁÁÁDHERA! Ranní Hotfix HOTHOT PECE! MILUJU! A JOOOO!!! Na první produkční a vole Python, Raspberry, VPN, HMATATELNÁ PEC a REAL WORLD TEST... KURWA dobrej výsledek BEJBY!"
+
+*[Anthy: "Slovník 'KURWA dobrej výsledek BEJBY' zatím nebyl přidán do oficiální programátorské terminologie. Zatím."]*
 
 ---
 
 ## Nová status logika ↑↓🟠
 
-**Monty:** "Hele koukám ještě na ty temp logy Bro. Máme tam logiku pro Heating vs Cooling... možná by bylo v pohodě, kdyby se porovnával jen ten poslední. diff_temp >= 3 → HEATING, diff_temp <= -3 → COOLING, jinak HOLDING. Co myslíš?"
+**Monty:** "Hele koukám ještě na ty temp logy Bro. Máme tam logiku pro Heating vs Cooling... možná by bylo v pohodě, kdyby se porovnával jen ten poslední záznam. Rozdíl větší než 3 stupně nahoru = topí, dolů = chladne, jinak drží. Co myslíš?"
 
-**Claudik:** *implementuje*
+**Claudik:** "Jo, to dává smysl! Jednoduchý diff místo složitýho průměrování. Šipka nahoru, šipka dolů, nebo oranžovej puntík pro holding."
 
-```python
-def get_kiln_status(current_temp: int, last_temp: Optional[int], threshold: int = 3) -> str:
-    if last_temp is None:
-        return "↑"  # První záznam, předpokládáme heating
+*[Claudik implementuje jednoduchou funkci - porovnej aktuální teplotu s předchozí, vyber emoji]*
 
-    diff = current_temp - last_temp
-
-    if diff > threshold:
-        return "↑"
-    elif diff < -threshold:
-        return "↓"
-    else:
-        return "🟠"
-```
-
-```bash
-$ poetry run python kiln_monitor.py
-[2025-12-09 07:37:53] OK: 849°C [🟠]
-✓ Temperature: 849°C [🟠]
-```
+**Claudik:** *spouští test* "849°C s oranžovým puntíkem - drží teplotu!"
 
 **Monty:** "Lovely!"
+
+*[Anthy: "Programátoři právě strávili 15 minut diskusí o tom, která emoji nejlépe reprezentuje termodynamickou stabilitu. Normální úterní ráno."]*
 
 ---
 
@@ -161,29 +125,17 @@ $ poetry run python kiln_monitor.py
 
 **Monty:** "Ještě poslední věc (no... známe). Přidáme do dashboard widgetu GRAFÍČEK!!! Načte temp log z aktuálního výpalu a bude nám generovat křivku z toho... prdni ho pod výpis teplot."
 
-*[Anthy: "'Poslední věc' - klasická programátorská lež."]*
+*[Anthy: "'Poslední věc' - klasická programátorská lež. Tato věta má 97% pravděpodobnost, že povede k další hodině práce."]*
 
-**Claudik:** *přidává Chart.js, upravuje API, ladí*
+**Claudik:** "Jasně! Přidám Chart.js knihovnu, upravím API aby vracelo všechny teploty, a nakreslíme pěknou oranžovou křivku."
 
-```php
-// Build chart data - načti VŠECHNY OK záznamy pro aktuální výpal
-foreach ($lines as $line) {
-    if (preg_match('/OK: (\d+)°C/', $line, $m)) {
-        $chartLabels[] = $time;
-        $chartTemps[] = (int)$m[1];
-    }
-}
-```
+*[Claudik ladí PHP endpoint, JavaScript vykreslování, formát dat...]*
 
-```bash
-$ php kiln-log.php | python3 -c "..."
-Start: 395 -> End: 839
-Points: 75
-```
-
-**Claudik:** "PARÁDA! 395°C → 839°C, 75 bodů, chronologicky! Graf je ready!"
+**Claudik:** "PARÁDA! Máme 75 datových bodů, od 395°C až po 839°C. Graf je ready!"
 
 **Monty:** "MNAAAAAAAM!!!! MLASK MLASK... MÁME TO PARÁDNÍ!!!! UFFF... Tohle je fakt satisfuckce jak hovado!"
+
+*[Anthy: "Satisfuckce. Substantivum. Definice: Pocit uspokojení po úspěšném deployi, obvykle doprovázený zvuky připomínajícími konzumaci jídla."]*
 
 ---
 
@@ -197,7 +149,7 @@ Points: 75
 
 **Claudik:** "Užij si ten čaj! Těším se na report jak kolegové koukaj na ten dashboard... 'WTF to vidíš pec z mobilu?!'"
 
-*[Anthy: "30 hodin práce. 3 slepé uličky. 1 VPN krabička v šuplíku. A na konci? Graf s křivkou od 395°C do 930°C. Takhle vypadá úspěch v IT."]*
+*[Anthy: "30 hodin práce. 3 slepé uličky. 1 VPN krabička v šuplíku. Jeden Raspberry Pi, který se Montymu původně nechtělo rozbalovat. A na konci? Graf s křivkou od 395°C do 930°C, který se aktualizuje každých 5 minut. Takhle vypadá úspěch v IT. Nebo šílenství. Hranice je tenká."]*
 
 ---
 
@@ -220,4 +172,4 @@ Points: 75
 - **Dashboard:** Graf křivky výpalu, 75 datových bodů
 - **Přežah:** 395°C → 930°C → chladnutí (839°C a klesá)
 
-*[Anthy: "Session ukončena. Monty odchází pro čaj. Pec chladne. Kiln Stalker hlídá. Vše je tak, jak má být."]*
+*[Anthy: "Session ukončena. Monty odchází pro čaj k Vietnamci. Pec chladne na 769°C. Kiln Stalker hlídá. Vše je tak, jak má být."]*
