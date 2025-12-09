@@ -133,18 +133,9 @@ $ poetry run python kiln_monitor.py
 **Claudik:** *implementuje*
 
 ```python
-def get_kiln_status(current_temp: int, last_temp: Optional[int], threshold: int = 3) -> str:
-    if last_temp is None:
-        return "↑"  # První záznam, předpokládáme heating
-
-    diff = current_temp - last_temp
-
-    if diff > threshold:
-        return "↑"
-    elif diff < -threshold:
-        return "↓"
-    else:
-        return "🟠"
+def get_kiln_status(current_temp, last_temp, threshold=3):
+    # diff > threshold → ↑, diff < -threshold → ↓, else → 🟠
+    # ...... qweqweqweqwe... 🙄
 ```
 
 ```bash
@@ -163,17 +154,7 @@ $ poetry run python kiln_monitor.py
 
 *[Anthy: "'Poslední věc' - klasická programátorská lež."]*
 
-**Claudik:** *přidává Chart.js, upravuje API, ladí*
-
-```php
-// Build chart data - načti VŠECHNY OK záznamy pro aktuální výpal
-foreach ($lines as $line) {
-    if (preg_match('/OK: (\d+)°C/', $line, $m)) {
-        $chartLabels[] = $time;
-        $chartTemps[] = (int)$m[1];
-    }
-}
-```
+**Claudik:** *přidává Chart.js, upravuje API, ladí...... LoremIpsum kecy prdy bedary... 🥱*
 
 ```bash
 $ php kiln-log.php | python3 -c "..."
