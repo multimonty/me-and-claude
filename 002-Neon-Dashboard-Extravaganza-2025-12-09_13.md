@@ -43,11 +43,7 @@ Monty s Claudikem přeměnili nudný VPS dashboard na neonový cyberpunk spektá
 
 **Monty:** "A subtitle má teď gradient podivně od šedý... lepší bude... počkej ne! Nedáme tu modrou do fialový, ale nějakou červenou do světle oranžový. Drž se těch neonů ale!"
 
-**Claudik:** "Jasně, neonová červená do oranžové!"
-
-```css
-background: linear-gradient(90deg, #ff5555, #ff7b00, #ffaa00);
-```
+**Claudik:** "Jasně, neonová červená do oranžové!...... Peseveze... 😴"
 
 **Monty:** "Teď je to paráda! Ještě změň subtitle text na to co máme v meta desc"
 
@@ -109,18 +105,7 @@ background: linear-gradient(90deg, #ff5555, #ff7b00, #ffaa00);
 
 **Monty:** "ACH! Poslední věc... boha jeho... Vyňuchňáme stalker graf! Tady máš temp cones i s real barvama pro teploty - skutt.com cone chart. Můžeš hodit gradient do grafu na základě teploty?"
 
-**Claudik:** "Znám keramické cone teploty a jejich barvy!"
-
-```javascript
-< 200°C  → #4a4a4a (cold gray)
-200-500°C → #8b0000 (dark red)
-500-700°C → #dc143c (cherry red)
-700-900°C → #ff4500 (orange red)
-900-1100°C → #ff7b00 (orange)
-1100-1200°C → #ffd700 (gold)
-1200-1300°C → #ffec8b (light yellow)
-> 1300°C → #fffaf0 (white hot)
-```
+**Claudik:** "Znám keramické cone teploty a jejich barvy!...... LoremIpsum kecy prdy bedary... 🙄"
 
 **Monty:** "Haha ok! Už vím, že si odborník i na kerošku - ulož bejby. Jsme na tom podobně, akorát já mám nějak pokazenou storage pro číslíčka a technický pojmy... teda aspoň co se keramickýho světa týče."
 
@@ -170,13 +155,7 @@ background: linear-gradient(90deg, #ff5555, #ff7b00, #ffaa00);
 
 **Claudik:** "Přesně tak!"
 
-*[Claudik píše firing_manager.py - kompletní state machine]*
-
-```
-States: idle → firing → cooling → idle
-        ↓
-    power_off_check (5x retry)
-```
+*[Claudik píše firing_manager.py - kompletní state machine...... BlaBlaBla... 🥱]*
 
 **Monty:** "No... otestujeme to až teď provozem ne?"
 

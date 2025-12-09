@@ -64,7 +64,7 @@ const poop = confetti.shapeFromText({ text: '💩', scalar })
 
 **Monty:** "Nemůžeme použít SVG?"
 
-**Claudik:** "Canvas-confetti má `shapeFromPath()` pro SVG path! Ale upřímně... Befeleme..."
+**Claudik:** "Canvas-confetti má `shapeFromPath()` pro SVG path!...... Befeleme... 😴"
 
 **Monty:** "Není to pain... stáhnu si je z Awesome dashboard! 😎"
 
@@ -86,15 +86,7 @@ const confettiPaths = {
 
 **Monty:** "Můžeš prosím nahradit stejným duotone style i ty ostatní ikonky? Sedí to krásně do toho neonu... AAAAA! Teď mi došlo... možná by bylo super nedávat je solid... ale fakt jen fa-light!!! NEON REAL SHIT!"
 
-*[Claudik mění všechny ikonky na fa-light]*
-
-```html
-<i class="fa-light fa-chart-simple"></i>
-<i class="fa-light fa-gears"></i>
-<i class="fa-light fa-wand-magic-sparkles"></i>
-<i class="fa-light fa-fire"></i>
-<i class="fa-light fa-lock"></i>
-```
+*[Claudik mění všechny ikonky na fa-light...... qweqweqweqwe... 🥱]*
 
 **Monty:** "UUUUUUUUU MNAAAAAM! Nemám slov!!!"
 
@@ -150,18 +142,7 @@ Uncaught ReferenceError: Cannot access 'universeWinking' before initialization
 
 **Claudik:** "Jasně, máš pravdu! V seriálu/knížce to byly přímo hvězdy co blikaly - ne nějaký overlay efekt. Vesmír sám mrkl!"
 
-*[Claudik upravuje wink efekt přímo v canvasu]*
-
-```javascript
-const winkSequence = [
-    { duration: 150, opacity: 0 },
-    { duration: 150, opacity: 1 },
-    { duration: 150, opacity: 0 },
-    { duration: 150, opacity: 1 },
-    { duration: 100, opacity: 0 },
-    { duration: 100, opacity: 1 }
-];
-```
+*[Claudik upravuje wink efekt přímo v canvasu...... Tralala... 🙄]*
 
 ---
 
