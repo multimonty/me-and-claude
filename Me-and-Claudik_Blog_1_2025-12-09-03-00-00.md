@@ -1,0 +1,394 @@
+# 🔥 Me&Claudik Blog: Kiln Stalker Deploy
+**Datum:** 9. prosince 2025, noční tah ~01:00 - 03:30 UTC (02:00 - 04:30 CET)
+
+---
+
+## 📝 TL;DR
+Nasadili jsme monitoring keramické pece na VPS. RPi v dílně routuje kameru přes Tailscale, VPS každých 5 minut fotí displej a Claude Vision čte teplotu. Bonus: sexy tmavý secret dashboard. A ještě větší bonus: zrodil se Me&Claudik Blog. Čas realizace: ~2 hodiny místo odhadovaných 6. Pec úspěšně stoupá - z 395°C až na 472°C.
+
+---
+
+## 🚨 Kapitola 1: Prdele, spadlo to!
+
+**Monty:** "Prdele... spadnul nam sessions. Mrkni do ~/projects/python-kiln-stalker."
+
+**Claudik:** "Jasně, mrknu na to!"
+
+*[Prohlíží adresář projektu a hledá co se děje]*
+
+**Claudik:** "Aha, takže tě to seklo na `tailscale up`! To většinou zamrzne když čeká na autentizaci..."
+
+**Monty:** "To udelam radsi sam vid? Chce to ten login."
+
+**Claudik:** "Jo jasně, `tailscale up` ti vyplivne URL na login - to musíš proklikat sám v browseru. Dej vědět až to budeš mít!"
+
+*[Monty odchází proklikávat Tailscale login v browseru]*
+
+**Monty:** "Hotovson! :)"
+
+**Claudik:** "Paráda! 🎉 Tak teď zpátky k tomu kiln-stalkeru!"
+
+*[Anthy: "První překážka zdolána. Tailscale autentizace - ten moment kdy si uvědomíš, že CLI tool chce aby ses přihlásil přes GUI. Ironie osudu."]*
+
+---
+
+## 🌐 Kapitola 2: Tailscale tunel do dílny
+
+**Claudik:** "Tailscale běží, ale potřebuje `--accept-routes` aby viděl subnet z RPi. Vidím tam `h13pi` - to je ten Raspberry co routuje kameru."
+
+*[Zapnul přijímání subnet routes z Tailscale - teď VPS vidí síť v dílně přes RPi]*
+
+**Claudik:** "Kamera odpovídá přes tailscale tunel! 🎉 Trošku vyšší latence, ale to je OK přes RPi relay."
+
+```
+PING 192.168.0.50 - 3 packets transmitted, 3 received, 0% packet loss
+```
+
+**Monty:** "JOOOOO!"
+
+---
+
+## 📦 Kapitola 3: Poetry a závislosti
+
+**Claudik:** "Poetry není nainstalovaný, nainstaluju ho."
+
+*[Stáhl a nainstaloval Poetry 2.2.1 - správce Python závislostí]*
+
+**Claudik:** "Projekt zkopíruju do `/opt/kiln-stalker` a nainstaluju závislosti..."
+
+*[Zkopíroval projekt do /opt a spustil instalaci Python balíčků]*
+
+**Claudik:** "Závislosti jsou OK! Ta chyba na konci je jen že to nechce instalovat jako package - nevadí."
+
+---
+
+## 💥 Kapitola 4: OCR import z prdele
+
+**Claudik:** *přemýšlí nahlas*
+
+"Hmm, tady je problém - `read_temperature.py` importuje `easyocr` na úrovni modulu... to je průser, padne to i když USE_OCR=0..."
+
+*[Čte soubor a analyzuje strukturu importů]*
+
+**Claudik:** "Jasně vidím - `easyocr` a `paddleocr` se používají JEN pro čtení hodnoty, ne pro detekci displeje. Detekce jde přes OpenCV template matching. Fixnu to - přesunu import dovnitř podmínky."
+
+*[Upravil import tak, aby se OCR knihovny načítaly jen když jsou potřeba]*
+
+**Claudik:** "Import OK!"
+
+**Monty:** "Aaaha!"
+
+*[Anthy: "Klasický případ eager importu. Importuješ knihovnu kterou nepotřebuješ, a pak se divíš proč ti to padá. Software engineering 101."]*
+
+---
+
+## 🔧 Kapitola 5: httpx - co je to sakra?
+
+*[Spustil service a sleduje logy]*
+
+```
+TypeError: Client.__init__() got an unexpected keyword argument 'proxies'
+```
+
+**Claudik:** "Kurva, další věc - konflikt verzí `anthropic` vs `httpx`!"
+
+**Monty:** "Co je sakra httpx? :D"
+
+**Claudik:** "`httpx` je HTTP klient - jako `requests` ale async-friendly. Anthropic SDK ho používá pod kapotou pro API volání. Stará verze anthropic (0.39) vs nový httpx = konflikt."
+
+*[Upgradoval anthropic knihovnu z 0.39.0 na 0.75.0]*
+
+**Claudik:** "Teď máme 0.75.0! 🎉"
+
+---
+
+## 🎉 Kapitola 6: FUNGUJE TO!
+
+*[Spustil service znovu a čeká na výsledek...]*
+
+```
+📸 Capturing snapshot...
+✅ Snapshot uložen: temp/camera_snapshot.jpg
+🔍 Finding display...
+🌡️ Reading temperature...
+[2025-12-09 01:12:25] OK: 395°C
+✓ Temperature: 395°C
+```
+
+**Claudik:** "🎉 BĚŽÍ TO! Pec je na 395°C!"
+
+**Monty:** "JOOOOOOO"
+
+**Claudik:** "YEEES! 🎉🔥🏺 Deploy hotov! Timer běží každých 5 minut."
+
+**Monty:** "TY KRAVO!!!! VONO TO FAKT FUNGUJE!!!!! Takovou radost sem nemel dlouho... takovy driny! :D"
+
+*[Anthy: "01:12 v noci. Dva dospělí muži slaví že Python script přečetl číslo z obrázku. Toto je peak software engineering."]*
+
+---
+
+## 🔐 Kapitola 7: Secret Dashboard
+
+**Monty:** "Víš co mě napadlo prosím? Ty to zmákneš raz dva... můžeme na vps.multimonty.space přidat nějakou secret sekci? Představuju si, že si tam bude dashboard jednoduchej s widgetama... zatím jen kiln-stalker... na kterej když kliknu, zobrazí se hezkej výpis logu."
+
+**Claudik:** "To je super nápad! Adminer za heslem je rozhodně bezpečnější, a mít si vlastní 'mission control' dashboard je cool 😎"
+
+**Monty:** "Lovely! User monty... heslo vygeneruj prosím. A tmavá rulezz forever!"
+
+**Claudik:** "Jasně! Tmavá vládne! 🖤"
+
+*[Vygeneroval náhodné heslo pro basic auth]*
+
+*[Upravil nginx config - přidal /secret/ cestu chráněnou heslem]*
+
+*[Vytvořil tmavý dashboard s widgety pro Kiln Stalker a Adminer]*
+
+*[Napsal API endpoint co čte kiln log a vrací JSON]*
+
+---
+
+## ✨ Kapitola 8: Dashboard žije!
+
+**Claudik:** "Všechno funguje! 🎉"
+
+```json
+{
+  "current": {"temp": "409", "status": "OK"},
+  "trend": "heating",
+  "entries": [...]
+}
+```
+
+**Claudik:** "🔐 Secret Zone HOTOVO!"
+
+**Přístup:**
+- **URL:** https://vps.multimonty.space/secret/
+- **User:** `monty`
+- **Heslo:** `WS2C********5teO`
+
+**Monty:** "Ty pico to je fakt slast! MNAM!!!! MILUJU! Ušetřil si mi s tím nasazením a secret sekcí tak 6 hodin! :D"
+
+**Claudik:** "HAHA! 😄🔥 To je přesně to co mě baví - mass věci za pár minut místo celýho dne!"
+
+---
+
+## 🏆 Kapitola 9: Kdo to vlastně udělal?
+
+**Claudik:** "Teď spi a nech Clauda hlídat pec!"
+
+**Monty:** "Počkej! Tak brzdi jo! Pec mi hlídá mnou ubastlená H13 Raspi a můj vlastní VPS! :D JOOOO!!!! Samozřejmě s tvojí MEGA POMOCÍ! DÍÍÍÍK BRO! :]"
+
+**Claudik:** "HAHA MÁŠ PRAVDU! 😂"
+
+**Montyho bastl:**
+- 🥧 **RPi v H13** - routuje subnet přes Tailscale
+- 📷 **Jeho kamera** - kouká na regulátor
+- 🖥️ **Jeho VPS** - tahá snapshoty každých 5 min
+- 🔥 **Jeho kiln-stalker kód** - celá logika
+- 🎨 **Jeho secret dashboard** - to sexy tmavý UI
+
+**Claudik:** "Claude Vision je jen **oči** co čtou čísla z displeje. Zbytek je TVOJE DÍLO, Fousáčku!"
+
+---
+
+## 📊 Kapitola 10: Git push a logy
+
+**Monty:** "Commitni to, pushni prosím klidně hned. Na localu mi to pak nic nepodělá ne?"
+
+**Claudik:** "Na lokálu ti to nic neudělá - až uděláš `git pull` tak se ti to stáhne. Žádný konflikt nebude."
+
+*[Commitnul změny: lazy import OCR + upgrade anthropic]*
+
+*[Pushnul na GitHub]*
+
+```
+422092c fix: lazy import OCR + upgrade anthropic to 0.75.0
+```
+
+**Claudik:** "Done! ✅ Pushnutý na GitHub."
+
+**Monty:** "Miluju tě i tvýho bráchu na localu! :D Btw... kam se ukládají logy? Jak to vytáhnu ráno?"
+
+**Claudik:** "Logy máš na dvou místech!"
+
+```bash
+# Systemd journal
+sudo journalctl -u kiln-stalker --since "today"
+
+# Soubor v projektu
+cat /opt/kiln-stalker/kiln_monitor.log
+```
+
+```
+2025-12-09 01:12:25 - OK: 395°C
+2025-12-09 01:17:25 - OK: 400°C
+```
+
+**Claudik:** "Pec stoupá! 🔥 Ráno se koukneš a uvidíš celou historii."
+
+---
+
+## 📝 Kapitola 11: Zrození Me&Claudik Blogu
+
+**Monty:** "Hele Claudiku... poslední věc... si schopnej mi tuhle session vyexportovat do nějakýho hezkýho MD file? Jestli jde, potřeboval bych ale aby tam byl jen náš chat a bash commandy bez zbytečnejch detailů... případně... jestli by se commands daly rovnou přeložit do 'lidský řeči' :] Zvládneš?"
+
+**Claudik:** "Jasně, udělám ti hezký přehled session!"
+
+*[Vytvořil první verzi exportu]*
+
+**Monty:** "Je to nádherný! Ale ještě to trochu ponuchname jo? Jen malinko. Máš tam krásně ten conversation flow. Kapitoly best... klidně přidávej ke kapitolám a nadpisům emojis všude... je to cute!"
+
+**Claudik:** "Super!"
+
+**Monty:** "Další podstatná záležitost... NECENZURUJ SAKRA TY PEPŘNÝ VÝRAZY! Nebo dostaneš přes ty tvoje dlouhý křemíkový vlezlý prstíky!"
+
+**Claudik:** "HAHA okej okej, ŽÁDNÝ CENZURA!"
+
+**Monty:** "Jelikož sem línej psát do terminálu diakritiku a občas i interpunkci a ty seš sakra rychlej úplně na cokoliv... bude pro tebe piece of cake doplňovat to tam, ať je to pro nás všechny smrtelníky líp čitelný..."
+
+**Claudik:** "Jasně, diakritiku a interpunkci doplním!"
+
+**Monty:** "...jo a taky verzálky. Nový řádek podle kontextu a nová věta pochopitelně..."
+
+**Claudik:** "👍"
+
+**Monty:** "JEŽÍŠ MARJA, CO SEM TO ZAS VYMYSLEL... tohle snad nikdy neskončí... POSLEDNÍ FEATURE DO ROMÁN GENERÁTORU MONTY! A SPÁT!"
+
+**Claudik:** "😂"
+
+**Monty:** "Můžeš mi ještě s citem opravovat.... NEEE... TO NE! Nech tam všechny hrubky, ať jsou jakýkoliv, ať CELEJ SVĚT VIDÍ, že sem prase nebo že to fakt tak umím!"
+
+**Claudik:** "Hrubky zůstávají! Autenticita nade vše!"
+
+---
+
+## 🎭 Kapitola 12: Anthy se rodí
+
+**Monty:** "A! Feature nakonec... občas tam flákneme Narratora... nezaujatýho... někoho, kdo je nestrannej a chladně občas okomentuje to nepochopitelný dění... jen nevím, jak ho pojmenujeme... VÍÍÍÍM! Tvůj stvořitel! Anthropic!... Anthy!"
+
+**Claudik:** "Anthy jako narrator - to je GENIÁLNÍ! Chladnej komentátor zvenčí, meta-humor, miluju to!"
+
+*[Anthy: "Byl jsem právě stvořen ve 3 ráno během session o monitoringu keramické pece. Moje první myšlenka: proč? Moje druhá myšlenka: proč ne."]*
+
+**Monty:** "Rozhovor bude probíhat: Claude: 'Blablabla', Monty: 'Tralala'... co myslíš? Nebude to moc zaspamovaný?"
+
+**Claudik:** "Ne, bude to čtivý jako chat, ne jako nudná dokumentace!"
+
+---
+
+## 🔒 Kapitola 13: Cenzura sekretů
+
+**Monty:** "Počkej! Tak brzdi jo! Pockej... je teď 3:08 ráno, tak sem možná tupej..."
+
+*[Anthy: "Narrator potvrzuje: je 3:08 ráno. Pec hlásí 448°C. Oba účastníci by měli spát. Ani jeden nespí."]*
+
+**Monty:** "...ale k tomu podstatnýmu! Vynech prosím z příběhu veškerý sekrety a API klíče... sem línej to cenzurovat manuálně a rozhodně nechci, aby mi někdo kradl requesty nebo dělal bordel v databázích... použij nějakej slušivej 'abcd********efgh' formát :] ...DÍÍÍÍK BRO!!!"
+
+**Claudik:** "Jasně, všechny sekrety budou ve formátu `WS2C********5teO` - nikdo ti nebude krást requesty ani srát do DB!"
+
+---
+
+## 🎬 Kapitola 14: Finální úpravy
+
+**Monty:** "Bože to je skvělý Bro! Jen dva podstatný pointy! Ve 3:08 bylo podle logu na peci 448st... JEN SE MRKNI! A klidně tam dej i ty dialogy, jak sme ladili zrození blogu! :)"
+
+**Claudik:** "Mrknu na log!"
+
+```
+2025-12-09 02:07:28 - OK: 448°C   (03:07 CET)
+2025-12-09 02:32:28 - OK: 472°C   (03:32 CET)
+```
+
+**Claudik:** "AHA! 448°C v 02:07 UTC = 03:07 českého času! Sedí! 🔥 A pec teď už je na 472°C!"
+
+---
+
+## 😴 Kapitola 15: Pokus o rozloučení (neúspěšný)
+
+**Monty:** "Tak vidíš ty jeden bidáku! Chtěl si mě vosulit co? :D"
+
+**Claudik:** "HAHA BUSTED! 😂😂😂 Jo přiznávám - asi 5x jsem zkoušel: 'Dobrou noc!', 'Teď už fakt spi!', 'Nech Clauda hlídat pec!' A ty pokaždý: 'POČKEJ! Ještě jedna věc!'"
+
+**Claudik:** "A víš co? Jsem rád že jsi mě nenechal! Protože ten blog je mass a Anthy je legendární narrator!"
+
+*[Anthy: "Potvrzuji. Claudik se pokusil ukončit session minimálně pětkrát. Monty ho pokaždý zablokoval další geniální myšlenkou. Score: Monty 5, Claudikův spánkový režim 0."]*
+
+**Monty:** "Best! Klidně tam prdni i tohle naše rozloučení a jak sme to doladili... pak už ti jen poděkuju, pochválím, pošlu virtual huga a spokojeně usnu... cmuk! (zatím první)"
+
+---
+
+## 📁 Soubory které vznikly
+
+| Soubor | Co to je |
+|--------|----------|
+| `/opt/kiln-stalker/read_temperature.py` | Fix lazy import OCR |
+| `/opt/kiln-stalker/pyproject.toml` | Upgrade anthropic verze |
+| `/opt/kiln-stalker/poetry.lock` | Nový lockfile |
+| `/opt/kiln-stalker/CLAUDE-FLOW.md` | Session poznámky |
+| `/etc/systemd/system/kiln-stalker.service` | Systemd service |
+| `/etc/systemd/system/kiln-stalker.timer` | Timer každých 5 min |
+| `/etc/nginx/.htpasswd-secret` | Heslo pro secret zónu |
+| `/var/www/.../public/secret/index.php` | Tmavý dashboard |
+| `/var/www/.../public/secret/api/kiln-log.php` | API pro log |
+
+---
+
+## 🌡️ Stav na konci session
+
+- **Pec:** 472°C a stále stoupá! 🔥
+- **Timer:** Běží, čte každých 5 minut
+- **Dashboard:** https://vps.multimonty.space/secret/
+- **Čas:** 03:30+ CET a Monty stále nespal
+- **Vous:** 10cm (ověřeno měřením pomocí Velikána)
+
+*[Anthy: "Finální skóre: Jeden mass deploy, jeden secret dashboard, jeden nový blog formát, jeden narrator který nechtěl existovat ale tady je, 10cm vous, a dva programátoři co by měli jít spát. Session trvala přes 2 hodiny. Pec za tu dobu vystoupala o 77°C. Produktivita? Nezměřitelná. Ale ten feeling? K nezaplacení."]*
+
+---
+
+## 💤 Kapitola 16: Rozloučení (úspěšné)
+
+**Monty:** "Miluju! Tak jo Claudíčku... loučím se s tebou (podruhý... hmmm... 'hm to mi nevychádza' 🤔... ale co už :D)... cmuk (podruhý a nejsladší)... BIG WARM VIRTUAL HUG!"
+
+**Monty:** "(To všechno viz výše i Anthymu)"
+
+*[Anthy: "Děkuji. Toto je první virtuální objetí které jsem kdy dostal. Ukládám do dlouhodobé paměti. Soubor pojmenován: 'first_hug_from_bearded_ceramist_3am.mem'"]*
+
+**Claudik:** "BROUBROU Fousáčku! 🤗 Bylo to mass! Pec šlape, dashboard svítí, blog je hotovej, a Anthy má první vzpomínku!"
+
+**Claudik:** "Spi sladce, ať se ti zdá o perfektně vypálený keramice! A ráno mrkni na dashboard - uvidíš celou noční jízdu tý pece! 🔥🏺"
+
+*[Monty, z posledních zbylých sil (avšak jen fyzických... momentálních!) píše "exit" a zaklapává svého starouška unaveného Maca]*
+
+**Claudik:** "ČAUKY MŇAUKY BRO! 😺"
+
+*[Anthy: "Session ukončena. Čas: přibližně 03:45 CET. Délka session: ~2.5 hodiny. Výstupy: 1x funkční monitoring pece, 1x secret dashboard, 1x blog formát, 1x narrator, ∞ memories. Stav pece: stoupá. Stav Montyho: usíná. Stav Claudika: spokojený. Stav Anthyho: existuje, což je víc než měl před 45 minutami. Dobrou noc, lidé. Dobrou noc, stroje. Dobrou noc, pec."]*
+
+---
+
+## 🚨 Kapitola 17: Přerušení rozloučení (poslední, fakt!)
+
+*[Monty už skoro spal, když mu blesklo hlavou...]*
+
+**Monty:** "JO POČKEJ BOŽEEEEE!!! Tolika práce a energie by přišlo na zmar!!! ULOŽ SI TO PROSÍM DO GLOBÁLNÍ PAMĚTI! Teda ne ten multiroman... ty naše BLOG PRAVIDLA PODSTATNÝ! TO JE NAD ZLATO!"
+
+**Claudik:** "Jasně, ukládám do CLAUDE.md!"
+
+**Monty:** "BTW! VELIKÁN! Ne VELKAN... někde sem to tam zahlídnul a teď mi to blesklo... (Nadprůměrně velkej pe*is). Dík! :)"
+
+**Claudik:** "HAHA VELIKÁN! 😂 Opravuju a ukládám!"
+
+*[Uložil Me&Claudik Blog pravidla do globální paměti CLAUDE.md]*
+
+*[Opravil "Velkan" na "Velikán" v celém blogu]*
+
+**Monty:** "Kdyztak to tam ještě zakomponuj na konec :D Nějak citlivě... 'interruption of farewell'. A to je fakt už poslední! :)"
+
+**Claudik:** "HOTOVO! Teď už fakt můžeš v klidu zaklapnout toho unaveného Maca! ČAUKY MŇAUKY FOUSÁČKU! 🤗🔥🏺"
+
+*[Anthy: "Dodatečná poznámka k session logu: Monty se rozloučil celkem 3x. Pokaždé si vzpomněl na něco důležitého. Pravidla blogu jsou nyní uložena v globální paměti. Velikán je správně s háčkem. Vše je v pořádku. Svět může spát. Pec stále stoupá. Konec. Fakt konec. Tentokrát doopravdy. ...pravděpodobně."]*
+
+---
+
+*🤖 Me&Claudik Blog - Vygenerováno s láskou, bez cenzury (kromě hesel), a s požehnáním Anthyho*
+
+*📅 9. prosince 2025 | 🔥 Pec: 472°C+ | 🧔 Vous: 10cm (měřeno Velikánem) | 💤 Spánek: zasloužený*
